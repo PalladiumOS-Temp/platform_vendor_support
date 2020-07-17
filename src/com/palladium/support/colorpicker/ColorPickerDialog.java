@@ -23,8 +23,6 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.VibrationEffect;
-import android.os.Vibrator;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -36,6 +34,9 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 
 import com.palladium.support.R;
+import com.palladium.support.util.VibrationUtils;
+
+public class ColorPickerDialog extends AlertDialog implements ColorPickerView.OnColorChangedListener, View.OnClickListener, View.OnKeyListener {
 
     private ColorPickerView mColorPicker;
     private ColorPickerPanelView mOldColor;
@@ -45,7 +46,6 @@ import com.palladium.support.R;
     private OnColorChangedListener mListener;
 
     private final Context mContext;
-    private final Vibrator mVibrator;
 
     public interface OnColorChangedListener {
         void onColorChanged(int color);
@@ -57,7 +57,6 @@ import com.palladium.support.R;
         init(initialColor);
 
         mContext = context;
-        mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     private void init(int color) {
@@ -154,7 +153,7 @@ import com.palladium.support.R;
                 mListener.onColorChanged(mNewColor.getColor());
             }
         }
-        doHapticFeedback();
+        VibrationUtils.doHapticFeedback(mContext, VibrationEffect.EFFECT_CLICK);
         dismiss();
     }
 
@@ -173,14 +172,5 @@ import com.palladium.support.R;
         super.onRestoreInstanceState(savedInstanceState);
         mOldColor.setColor(savedInstanceState.getInt("old_color"));
         mColorPicker.setColor(savedInstanceState.getInt("new_color"), true);
-    }
-
-    private void doHapticFeedback() {
-        final boolean hapticEnabled = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.HAPTIC_FEEDBACK_ENABLED, 1) != 0;
-
-        if (hapticEnabled) {
-            mVibrator.vibrate(VibrationEffect.get(VibrationEffect.EFFECT_CLICK));
-        }
     }
 }
